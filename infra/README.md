@@ -79,7 +79,16 @@ az deployment group create \
 
 ---
 
-**6. Run gen_sas.sh to auto-generate and store the ADLS SAS token in Databricks**
+**6. After deploying, configure the Databricks CLI profile:**
+
+```bash
+url=$(az databricks workspace show -g "$RG" -n "$WORKSPACE" --query "workspaceUrl" -o tsv)
+databricks configure --profile "$PROFILE" --host "https://$url" --token <<< "${DATABRICKS_PAT}"$'\n'
+```
+
+---
+
+**7. Run gen_sas.sh to auto-generate and store the ADLS SAS token in Databricks**
 
 ```bash
 infra/deploy/gen_sas.sh
@@ -87,7 +96,7 @@ infra/deploy/gen_sas.sh
 
 ---
 
-**7. Upload the wheel to Workspace Files (stable alias path):**
+**8. Upload the wheel to Workspace Files (stable alias path):**
 
 This builds the wheel from your local pyproject.toml and uploads it to a stable workspace location (/Workspace/Shared/libs/kflow-latest.whl), which will never change across versions.
 
@@ -95,13 +104,17 @@ This builds the wheel from your local pyproject.toml and uploads it to a stable 
 python -m pip install --upgrade build
 python -m build
 
-# Create the folder once; harmless if it already exists
+# make sure the folder exists
 databricks workspace mkdirs "/Shared/libs"
 
-# Overwrite the same alias path each time
+# pick the .whl path explicitly (avoid wildcards/interactive behavior)
+WHEEL="$(ls dist/*.whl | head -n1)"
+echo "Uploading $WHEEL -> /Shared/libs/kflow-latest.whl"
+
 databricks workspace import --format AUTO \
-  --file dist/*.whl \
-  "/Shared/libs/kflow-latest.whl" --overwrite
+  --file "$WHEEL" \
+  "/Shared/libs/kflow-latest.whl" \
+  --overwrite
 ```
 
 You now have a canonical install path:
@@ -110,7 +123,7 @@ You now have a canonical install path:
 
 ---
 
-**8. Attach the wheel to each task (one-time only)**
+**9. Attach the wheel to each task (one-time only)**
 
 Add this to each job task definition:
 
@@ -122,7 +135,11 @@ Add this to each job task definition:
 
 > 💡 This is required because shared job clusters ignore cluster-level libraries — task-level libraries are the only reliable method unless you're using Unity Catalog or workspace init scripts (which are more complex to manage).
 
-**9. You can reset the job with the following command:**
+**10. Create/reset the job with the following commands:**
+
+```bash
+databricks jobs create --json '@pipelines/kardiaflow_full_run_batch.json' --profile kardia
+```
 
 ```bash
 databricks jobs reset --json @pipelines/reset_kardiaflow_full_run_batch.json
