@@ -5,11 +5,22 @@
   <br/><br/>
 </p>
 
-<p align="center"><b>▷ See It in Action (2-min demo)</b></p>
+<p align="center">
+  <a href="https://youtu.be/YPaAU44Tdvw">
+    <img
+      src="https://img.shields.io/badge/▶%20Watch%20the%202--min%20demo-YouTube-red?style=for-the-badge&logo=youtube"
+      alt="Watch the 2-minute Kardiaflow demo on YouTube"
+    />
+  </a>
+</p>
 
 <p align="center">
-  <a href="https://youtu.be/YPaAU44Tdvw" target="_blank">
-    <img src="https://img.youtube.com/vi/YPaAU44Tdvw/hqdefault.jpg" width="420" alt="Watch the demo on YouTube"/>
+  <a href="https://youtu.be/YPaAU44Tdvw">
+    <img
+      src="https://img.youtube.com/vi/YPaAU44Tdvw/hqdefault.jpg"
+      width="520"
+      alt="Video thumbnail: watch the Kardiaflow demo on YouTube"
+    />
   </a>
 </p>
 
